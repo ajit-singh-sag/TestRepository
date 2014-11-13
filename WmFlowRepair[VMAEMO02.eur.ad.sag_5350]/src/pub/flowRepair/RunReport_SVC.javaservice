@@ -1,0 +1,65 @@
+package pub.flowRepair;
+
+import com.wm.data.*;
+import com.wm.util.Values;
+import com.wm.app.b2b.server.Service;
+import com.wm.app.b2b.server.ServiceException;
+
+public final class RunReport_SVC
+
+{
+
+	/** 
+	 * The primary method for the Java service
+	 *
+	 * @param pipeline
+	 *            The IData pipeline
+	 * @throws ServiceException
+	 */
+	public static final void RunReport(IData pipeline) throws ServiceException {
+		IDataCursor pCursor = pipeline.getCursor();
+		String packageName = null;
+		int pass = -1;
+		String flagService = null;
+		String flagLine = null;
+		String mode = null;
+		String inputString = null;
+		if (pCursor.first("packageName")) {
+			packageName = (String) pCursor.getValue();
+		}
+		if (pCursor.first("pass")) {
+		        String p = (String) pCursor.getValue();
+			pass = Integer.parseInt(p.substring(0,1));
+		        
+		}
+		if (pCursor.first("flagService")) {
+			flagService = (String) pCursor.getValue();
+		}
+		if (pCursor.first("flagLine")) {
+			flagLine = (String) pCursor.getValue();
+		}
+		if (pCursor.first("mode")) {
+			mode = (String) pCursor.getValue();
+		}
+		if (pCursor.first("inputString")) {
+			inputString = (String) pCursor.getValue();
+		}
+		
+		//initialize the FlowRepairService class
+		pub.flow.repair.FlowRepairService frs = new pub.flow.repair.FlowRepairService(packageName,pass,flagService,flagLine,mode,inputString);
+		
+		//runing the FlowRepair
+		  String outputString = frs.analyzeFlows();
+		  String reloadRequired = frs.reloadRequired; 
+		//Keeping result in pipelene
+		  pCursor.insertAfter("outputString",outputString);
+		  pCursor.insertAfter("reloadRequired",reloadRequired);
+		
+	}
+	
+	// --- <<IS-BEGIN-SHARED-SOURCE-AREA>> ---
+	
+	
+	
+	// --- <<IS-END-SHARED-SOURCE-AREA>> ---
+}
